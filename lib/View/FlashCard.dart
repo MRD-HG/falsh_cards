@@ -13,6 +13,7 @@ class _FlashCardState extends State<FlashCard> {
 
       children:[
         Expanded(
+          flex: 2,
           child: Container(
             padding: const EdgeInsets.all(30),
             color: Colors.blueAccent,
@@ -20,6 +21,7 @@ class _FlashCardState extends State<FlashCard> {
           ),
         ),
         Expanded(
+          flex: 1,
           child: Container(
             padding: const EdgeInsets.all(30),
             color: Colors.grey,
@@ -27,6 +29,7 @@ class _FlashCardState extends State<FlashCard> {
           ),
         ),
         Expanded(
+          flex: 1,
           child: Container(
             padding: const EdgeInsets.all(30),
             color: Colors.orange,
