@@ -48,7 +48,7 @@ Future<void> readJson() async{
                         onTap: (){
                           Navigator.push(context, MaterialPageRoute(builder: (context)=>FlashCardDetails(cards:category['cards'])));
                         },
-                        trailing: const Icon(Icons.arrow_forward_ios_outlined),
+                        trailing:  Icon(Icons.arrow_forward_ios_outlined),
                       ),
                     ),
                   )
