@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:convert';
-
 import 'package:flutter/services.dart';
+
 class FlashCard extends StatefulWidget {
   const FlashCard({super.key});
 
@@ -10,102 +10,148 @@ class FlashCard extends StatefulWidget {
 }
 
 class _FlashCardState extends State<FlashCard> {
+  List _items = [];
 
-
-List _items=[];
-Future<void> readJson() async{
-  final String response = await rootBundle.loadString('assets/data.json');
-  final data= await json.decode(response);
-  setState(() {
-    _items = data["data"];
-  });
-}
-  @override
-  void initState(){
-  super.initState();
-  readJson();
+  Future<void> readJson() async {
+    final String response = await rootBundle.loadString('assets/data.json');
+    final data = json.decode(response);
+    setState(() {
+      _items = data["data"];
+    });
   }
+
+  @override
+  void initState() {
+    super.initState();
+    readJson();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
-      body:_items.isNotEmpty
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("FlashCards"),
+      ),
+      body: _items.isNotEmpty
           ? ListView.builder(
-          itemCount: _items.length,
-          itemBuilder:(context, index)
-          {
-            final category = _items[index];
-            return  Column(
-                children:[
-                  Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Card(
-                      child: ListTile(
-                        title: Align(
-                            alignment: Alignment.center,
-                            child: Text(category['category'])
-                        ),
-
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>FlashCardDetails(cards:category['cards'])));
-                        },
-                        trailing:  Icon(Icons.arrow_forward_ios_outlined),
+        itemCount: _items.length,
+        itemBuilder: (context, index) {
+          final category = _items[index];
+          return Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Card(
+              child: ListTile(
+                title: Align(
+                  alignment: Alignment.center,
+                  child: Text(category['category']),
+                ),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => FlashCardDetails(
+                        cards: category['cards'] ?? [],
                       ),
                     ),
-                  )
-                ]
-
-            );
-          }
-      )
-    : const Center(
-        child: CircularProgressIndicator(),
-      )
-    );
-  }
-}
-class FlashCardDetails extends StatelessWidget {
-  final List cards;
-  const FlashCardDetails({required this.cards , super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    if (cards == null || cards.isEmpty) {
-      return Scaffold(
-        body: Center(
-          child: Text('No cards available'),
-        ),
-      );
-    }
-
-    return Scaffold(
-      body: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: cards.length,
-        itemBuilder: (context, index) {
-          final card = cards[index];
-          return Card(
-            child: ListTile(
-              title: Text(card['question']),
-              onTap: () {
-                showDialog(
-                  context: context,
-                  builder: (_) =>
-                      AlertDialog(
-                        title: const Text("Answer"),
-                        content: Text(card['answer']),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(context),
-                            child: const Text('Close'),
-                          ),
-                        ],
-                      ),
-                );
-              },
+                  );
+                },
+                trailing: const Icon(Icons.arrow_forward_ios_outlined),
+              ),
             ),
           );
         },
+      )
+          : const Center(
+        child: CircularProgressIndicator(),
       ),
     );
   }
+}
+
+class FlashCardDetails extends StatefulWidget {
+  final List cards;
+
+  const FlashCardDetails({required this.cards, super.key});
+
+  @override
+  State<FlashCardDetails> createState() => _FlashCardDetailsState();
+}
+
+class _FlashCardDetailsState extends State<FlashCardDetails> {
+  int currentIndex = 0;
+  bool showAnswer = false;
+
+  void nextCard() {
+    setState(() {
+      if (currentIndex < widget.cards.length - 1) {
+        currentIndex++;
+        showAnswer = false;
+      }
+    });
   }
+
+  void previousCard() {
+    setState(() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        showAnswer = false;
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final currentCard = widget.cards[currentIndex];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text("FlashCards"),
+      ),
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Card(
+                elevation: 4.0,
+                child: GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      showAnswer = !showAnswer;
+                    });
+                  },
+                  child: Container(
+                    height: 200,
+                    width: double.infinity,
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      showAnswer ? currentCard['answer'] : currentCard['question'],
+                      textAlign: TextAlign.center,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  ElevatedButton(
+                    onPressed: previousCard,
+                    child: const Text("Previous"),
+                  ),
+                  ElevatedButton(
+                    onPressed: nextCard,
+                    child: const Text("Next"),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
