@@ -102,7 +102,7 @@ class Home extends StatelessWidget {
               // Get Started Button
               ElevatedButton(
                 onPressed: () {
-                  Navigator.pushNamed(context, '/flashcards');
+                  Navigator.pushNamed(context, '/flashards');
                 },
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
